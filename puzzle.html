@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Puzzle avec calques</title>
+  <style>
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      gap: 40px;
+      min-height: 100vh;
+      background: #f0f0f0;
+      font-family: Arial, sans-serif;
+      padding: 40px;
+    }
+
+    .wrapper {
+      position: relative;
+      width: fit-content;
+      height: fit-content;
+    }
+
+    /* Image au-dessus (grille gauche) */
+    .overlay-top {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 2; /* au-dessus des cases */
+    }
+
+    /* Image en dessous (grille droite) */
+    .overlay-bottom {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0; /* en arrière-plan */
+    }
+
+    .puzzle {
+      display: grid;
+      grid-template-columns: repeat(5, 120px);
+      grid-template-rows: repeat(5, 150px);
+      position: relative;
+      z-index: 1; /* par-dessus l’overlay-bottom */
+    }
+
+    .piece {
+      width: 120px;
+      height: 150px;
+      border: 1px solid #ccc;
+      overflow: hidden;
+    }
+
+    .piece img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: grab;
+      user-select: none;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Grille gauche avec calque au-dessus -->
+  <div class="wrapper">
+    <div class="puzzle" id="source">
+      <div class="piece"><img src="A.png" draggable="true"></div>
+      <div class="piece"><img src="B.png" draggable="true"></div>
+      <div class="piece"><img src="C.png" draggable="true"></div>
+      <div class="piece"><img src="D.png" draggable="true"></div>
+      <div class="piece"><img src="E.png" draggable="true"></div>
+      <div class="piece"><img src="F.png" draggable="true"></div>
+      <div class="piece"><img src="G.png" draggable="true"></div>
+      <div class="piece"><img src="H.png" draggable="true"></div>
+      <div class="piece"><img src="I.png" draggable="true"></div>
+      <div class="piece"><img src="J.png" draggable="true"></div>
+      <div class="piece"><img src="K.png" draggable="true"></div>
+      <div class="piece"><img src="L.png" draggable="true"></div>
+      <div class="piece"><img src="M.png" draggable="true"></div>
+      <div class="piece"><img src="N.png" draggable="true"></div>
+      <div class="piece"><img src="P.png" draggable="true"></div>
+      <div class="piece"><img src="Q.png" draggable="true"></div>
+      <div class="piece"><img src="R.png" draggable="true"></div>
+      <div class="piece"><img src="S.png" draggable="true"></div>
+      <div class="piece"><img src="T.png" draggable="true"></div>
+      <div class="piece"><img src="U.png" draggable="true"></div>
+      <div class="piece"><img src="V.png" draggable="true"></div>
+      <div class="piece"><img src="W.png" draggable="true"></div>
+      <div class="piece"><img src="X.png" draggable="true"></div>
+      <div class="piece"><img src="Y.png" draggable="true"></div>
+      <div class="piece"><img src="Z.png" draggable="true"></div>
+    </div>
+    <img src="grille-de-gauche.png" alt="grille gauche" class="overlay-top">
+  </div>
+
+  <!-- Grille droite avec calque en dessous -->
+  <div class="wrapper">
+    <img src="grille-de-droite.png" alt="grille droite" class="overlay-bottom">
+    <div class="puzzle" id="target">
+      <!-- 25 cases vides -->
+      <div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div>
+      <div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div>
+      <div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div>
+      <div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div>
+      <div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div><div class="piece"></div>
+    </div>
+  </div>
+
+<script>
+  let draggedImg = null;
+
+  // Assigner un ID unique à chaque cellule source pour pouvoir revenir dessus
+  document.querySelectorAll('#source .piece').forEach((cell, index) => {
+    cell.id = 'source-piece-' + index;
+  });
+
+  // Pour chaque image, stocker sa cellule d'origine
+  document.querySelectorAll('#source .piece img').forEach(img => {
+    img.dataset.originalParent = img.parentNode.id;
+
+    // Drag & drop
+    img.addEventListener('dragstart', e => {
+      draggedImg = e.target;
+    });
+
+    // Double clic pour remettre dans sa cellule d'origine
+    img.addEventListener('dblclick', e => {
+      const originalParent = document.getElementById(img.dataset.originalParent);
+      if (originalParent) {
+        originalParent.appendChild(img);
+      }
+    });
+  });
+
+  // Drag & drop sur toutes les cases
+  document.querySelectorAll('.piece').forEach(piece => {
+    piece.addEventListener('dragover', e => e.preventDefault());
+
+    piece.addEventListener('drop', e => {
+      e.preventDefault();
+      if (!draggedImg) return;
+
+      if (!piece.querySelector('img')) {
+        piece.appendChild(draggedImg);
+      } else {
+        const targetImg = piece.querySelector('img');
+        const parentDragged = draggedImg.parentNode;
+        piece.appendChild(draggedImg);
+        parentDragged.appendChild(targetImg);
+      }
+      draggedImg = null;
+    });
+  });
+</script>
+
+</body>
+</html>
